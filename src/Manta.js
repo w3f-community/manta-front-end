@@ -39,7 +39,7 @@ function Main (props) {
 
   return (
     <Grid.Column width={8}>
-      <h1> Manta DAP Mint </h1>
+      <h1> Manta DAP</h1>
       <Form>
           <Form.Field>
           <Input
@@ -54,8 +54,9 @@ function Main (props) {
         <Form.Field>
           <Input
             fluid
-            label='k (base64)'
+            label='k'
             type='text'
+            placeholder = "k (base64)"
             state='k'
             onChange={onChangeK}
           />
@@ -63,8 +64,9 @@ function Main (props) {
         <Form.Field>
           <Input
             fluid
-            label='s (base64)'
+            label='s'
             type='text'
+            placeholder='s (base 64)'
             state='s'
             onChange={onChangeS}
           />
@@ -72,8 +74,9 @@ function Main (props) {
         <Form.Field>
           <Input
             fluid
-            label='commitment (base64)'
+            label='commitment'
             type='text'
+            placeholder = 'cm (base64)'
             state='cm'
             onChange={onChangeCm}
           />
@@ -98,7 +101,7 @@ function Main (props) {
   );
 }
 
-export default function TemplateModule (props) {
+export default function Manta (props) {
   const { api } = useSubstrate();
   return api.query.mantaDap ? <Main {...props} /> : null;
 }
