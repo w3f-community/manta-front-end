@@ -13,8 +13,8 @@ import Interactor from './Interactor';
 import Metadata from './Metadata';
 import NodeInfo from './NodeInfo';
 import Manta from './Manta';
-import Transfer from './Transfer';
 import Upgrade from './Upgrade';
+import TemplateModule from './TemplateModule';
 
 function Main () {
   const [accountAddress, setAccountAddress] = useState(null);

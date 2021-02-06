@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Grid } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
@@ -20,80 +20,152 @@ function Main (props) {
 
   // The transaction submission status
   const [status, setStatus] = useState(null);
-  // The form values
-  const [formState, setFormState] = useState({amount:0, k:null, s:null, cm:null})
+  
+  const initFormState = {
+    palletRpc: 'mantaDap',
+    callable: 'mint',
+    inputParams: []
+  }
+  
+  const [formState, setFormState] = useState(initFormState);
+  const [inputParamMetas, setInputParamMetas] = useState([]);
+  const [paramFields, setParamFields] = useState([]);
+  const { palletRpc, callable, inputParams } = formState;
 
-  const onChangeAmount = (_, data) =>
-    setFormState(prev => ({ ...prev, [data.state]: data.value }));
-  
-  const onChangeK = (_, data) =>
-    setFormState(prev => ({ ...prev, [data.state]: base64ToArray(data.value)}));
+  const updateInputParamMetas = () => {
+    let inputParamMetas = [];
+    if (callable === "mint") {
+      inputParamMetas = [{
+        name: "mint amount",
+        state: "amount", 
+        jstype: "number",
+        type: "u64"
+      }, {
+        name: "k",
+        state: "k",
+        jstype: "text",
+        type: "base64 string"
+      }, {
+        name: "s",
+        state: "s",
+        jstype: "text",
+        type: "base64 string"
+      }, {
+        name: "commitment",
+        state: "cm",
+        jstype: "text",
+        type: "base64 string"
+      }];
+    } else if (callable === "mantaTransfer"){
+      inputParamMetas = [
+      {
+        name: "merkle root",
+        state: "merkle_root", 
+        type: "base64 string",
+        jstype: "text",
+        value: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      },{
+        name: "old sn",
+        state: "sn_old",
+        type: "base64 string"
+      }, {
+        name: "old k",
+        state: "k_old",
+        jstype: "text",
+        type: "base64 string"
+      }, {
+        name: "new k",
+        state: "k_new",
+        jstype: "text",
+        type: "base64 string"
+      }, {
+        name: "new commitment",
+        state: "cm_new",
+        jstype: "text",
+        type: "base64 string"
+      }, {
+        name: "transfer amount",
+        state: "amount", 
+        jstype: "number",
+        type: "u64"
+      }, {
+        name: "proof",
+        state: "proof",
+        jstype: "text",
+        type: "base64 string"
+      }];
+    }
+    setInputParamMetas(inputParamMetas);
+    let paramFields = [];
+    paramFields = inputParamMetas.map((_, ind) => true);
+    setParamFields(paramFields);
+  };
 
-  const onChangeS = (_, data) =>
-    setFormState(prev => ({ ...prev, [data.state]: base64ToArray(data.value)}));
-  
-  const onChangeCm = (_, data) =>
-    setFormState(prev => ({ ...prev, [data.state]: base64ToArray(data.value)}));
-  
-  const {amount, k, s, cm} = formState;
+  useEffect(updateInputParamMetas, [api, callable]);
+
+  const onCallableParamChange = (_, data) => {
+    setFormState(formState => {
+      let { state, value } = data;
+      const { ind, paramMeta } = state;
+      value = paramMeta.type === "base64 string" ? base64ToArray(value) : value;
+      const inputParams = [...formState.inputParams];
+      inputParams[ind] = value;
+      return { ...formState, inputParams };
+    });
+  };
+
+  const onCallableChange = (_, data) => {
+    const formState = { ...initFormState, callable: data.value };
+    setFormState(formState);
+  };
 
   return (
     <Grid.Column width={8}>
       <h1> Manta DAP</h1>
       <Form>
-          <Form.Field>
-          <Input
-            fluid
-            label='Amount'
-            type='number'
-            placeholder='amount (u64)'
-            state='amount'
-            onChange={onChangeAmount}
+        <Form.Group style={{ overflowX: 'auto' }} inline>
+          <label>Interaction Type</label>
+          <Form.Radio
+            label='Mint'
+            name='callable'
+            value='mint'
+            checked={callable === 'mint'}
+            onChange={onCallableChange}
           />
-        </Form.Field>
-        <Form.Field>
-          <Input
-            fluid
-            label='k'
-            type='text'
-            placeholder = "k (base64)"
-            state='k'
-            onChange={onChangeK}
+          <Form.Radio
+            label='Private Transfer'
+            name='callable'
+            value='mantaTransfer'
+            checked={callable === 'mantaTransfer'}
+            onChange={onCallableChange}
           />
-        </Form.Field>
-        <Form.Field>
-          <Input
-            fluid
-            label='s'
-            type='text'
-            placeholder='s (base 64)'
-            state='s'
-            onChange={onChangeS}
-          />
-        </Form.Field>
-        <Form.Field>
-          <Input
-            fluid
-            label='commitment'
-            type='text'
-            placeholder = 'cm (base64)'
-            state='cm'
-            onChange={onChangeCm}
-          />
-        </Form.Field>
+        </Form.Group>
+        {inputParamMetas.map((paramMeta, ind) =>
+          <Form.Field key={`${paramMeta.name}-${paramMeta.type}`}>
+            <Input
+              placeholder={paramMeta.type}
+              fluid
+              type={paramMeta.jstype}
+              label={paramMeta.name}
+              state={{ ind, paramMeta }}
+              onChange={onCallableParamChange}
+            />        
+          </Form.Field>
+        )}
         <Form.Field style={{ textAlign: 'center' }}>
-          <TxButton
-            accountPair={accountPair}
-            label='Submit'
-            type='SIGNED-TX'
-            setStatus={setStatus}
-            attrs={{
-              palletRpc: 'mantaDap',
-              callable: 'mint',
-              inputParams: [amount, k, s, cm],
-              paramFields: [true, true, true, true]
-            }}
-          />
+          
+        <TxButton
+          accountPair={accountPair}
+          setStatus={setStatus}
+          label='Submit'
+          type='SIGNED-TX'
+          attrs={{ 
+            palletRpc: palletRpc, 
+            callable: callable,  
+            inputParams: inputParams, 
+            paramFields: paramFields 
+          }}
+        />
         </Form.Field>
         <div style={{ overflowWrap: 'break-word' }}>{status}</div>
       </Form>
@@ -103,5 +175,5 @@ function Main (props) {
 
 export default function Manta (props) {
   const { api } = useSubstrate();
-  return api.query.mantaDap ? <Main {...props} /> : null;
+  return api.tx.mantaDap ? <Main {...props} /> : null;
 }
