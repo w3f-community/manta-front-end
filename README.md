@@ -1,4 +1,6 @@
-# Substrate Front End Template
+# Manta Front End
+
+(forked from substrate-front-end-template).
 
 This template allows you to create a front-end application that connects to a
 [Substrate](https://github.com/paritytech/substrate) node back-end with minimal
