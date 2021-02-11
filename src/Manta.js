@@ -23,7 +23,7 @@ function Main (props) {
   
   const initFormState = {
     palletRpc: 'mantaDap',
-    callable: 'mint',
+    callable: 'init',
     inputParams: []
   }
   
@@ -34,7 +34,14 @@ function Main (props) {
 
   const updateInputParamMetas = () => {
     let inputParamMetas = [];
-    if (callable === "mint") {
+    if (callable === "init") {
+      inputParamMetas = [{
+        name: "init basecoin (supply)",
+        state: "init",
+        jstype: "number",
+        type: "u64"
+      }];
+    } else if (callable === "mint") {
       inputParamMetas = [{
         name: "mint amount",
         state: "amount", 
@@ -84,10 +91,10 @@ function Main (props) {
         jstype: "text",
         type: "base64 string"
       }, {
-        name: "transfer amount",
-        state: "amount", 
-        jstype: "number",
-        type: "u64"
+        name: "encrypted transfer amount",
+        state: "enc_amount", 
+        jstype: "text",
+        type: "base64 string"
       }, {
         name: "proof",
         state: "proof",
@@ -125,6 +132,13 @@ function Main (props) {
       <Form>
         <Form.Group style={{ overflowX: 'auto' }} inline>
           <label>Interaction Type</label>
+          <Form.Radio
+            label='Init'
+            name='callable'
+            value='init'
+            checked={callable === 'init'}
+            onChange={onCallableChange}
+          />
           <Form.Radio
             label='Mint'
             name='callable'
