@@ -2,6 +2,9 @@
 
 (forked from substrate-front-end-template).
 
+Note: this front-end code works with fast developing `manta-node-private` backend code (still closed source).
+Please use `90fd604` to worked with the open sourced `manta-node`.
+
 This template allows you to create a front-end application that connects to a
 [Substrate](https://github.com/paritytech/substrate) node back-end with minimal
 configuration. To learn about Substrate itself, visit the
