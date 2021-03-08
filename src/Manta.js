@@ -101,6 +101,35 @@ function Main (props) {
         jstype: "text",
         type: "base64 string"
       }];
+    } else if (callable === "forfeit") {
+      inputParamMetas = [
+        {
+          name: "forfeit amount",
+          state: "amount", 
+          jstype: "number",
+          type: "u64"
+        },
+        {
+          name: "merkle root",
+          state: "merkle_root", 
+          type: "base64 string",
+          jstype: "text",
+          value: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        },{
+          name: "old sn",
+          state: "sn_old",
+          type: "base64 string"
+        }, {
+          name: "old k",
+          state: "k_old",
+          jstype: "text",
+          type: "base64 string"
+        }, {
+          name: "proof",
+          state: "proof",
+          jstype: "text",
+          type: "base64 string"
+        }];
     }
     setInputParamMetas(inputParamMetas);
     let paramFields = [];
@@ -151,6 +180,13 @@ function Main (props) {
             name='callable'
             value='mantaTransfer'
             checked={callable === 'mantaTransfer'}
+            onChange={onCallableChange}
+          />
+          <Form.Radio
+            label='Forfeit'
+            name='callable'
+            value='forfeit'
+            checked={callable === 'forfeit'}
             onChange={onCallableChange}
           />
         </Form.Group>
